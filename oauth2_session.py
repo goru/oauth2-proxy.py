@@ -18,13 +18,7 @@ class Oauth2Sessions:
 
     def create(self):
         session = Oauth2Session()
-        self.sessions[session.id] = session
-
-        # max sessions
-        if len(self.sessions) > self.max_sessions:
-            self.sessions.popitem(last=False)
-
-        return session
+        return self.add(session)
 
 
     def get(self, session_id):
@@ -33,8 +27,19 @@ class Oauth2Sessions:
         return self.sessions[session_id]
 
 
+    def add(self, session):
+        self.sessions[session.id] = session
+
+        # remove old session
+        if len(self.sessions) > self.max_sessions:
+            self.sessions.popitem(last=False)
+
+        return session
+
+
     def delete(self, session):
-        del self.sessions[session.id]
+        if session.id in self.sessions:
+            del self.sessions[session.id]
 
 
 class Oauth2Session:

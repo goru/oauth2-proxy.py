@@ -25,11 +25,12 @@ configs = {
 app = Flask(__name__)
 provider = Providers[configs['provider']](configs)
 sessions = Oauth2Sessions(configs['max_sessions'])
+accepted_sessions = Oauth2Sessions(configs['max_sessions'])
 
 
 @app.route('/oauth2/auth')
 def auth():
-    session = sessions.get(
+    session = accepted_sessions.get(
         request.cookies.get('session_id', '')
     )
 
@@ -37,7 +38,7 @@ def auth():
         if check_expires_at(session):
             return make_response('', 204)
         else:
-            sessions.delete(session)
+            accepted_sessions.delete(session)
 
     abort(401)
 
@@ -92,16 +93,18 @@ def callback():
     if not session:
         abort(401)
 
+    sessions.delete(session)
+
     if not session.original_uri:
         abort(400)
 
     if not provider.get_token(request.args, session):
-        sessions.delete(session)
         abort(401)
 
     if not provider.check_user(session):
-        sessions.delete(session)
         abort(403)
+
+    accepted_sessions.add(session)
 
     return redirect(session.original_uri)
 
