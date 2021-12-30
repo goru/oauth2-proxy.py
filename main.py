@@ -4,6 +4,7 @@
 import logging
 import os
 from datetime import datetime
+from distutils.util import strtobool
 
 from flask import Flask, request, abort, redirect, url_for, make_response
 
@@ -11,16 +12,18 @@ from providers.providers import Providers
 from oauth2_session import Oauth2Sessions
 
 
-#logging.basicConfig(level=logging.INFO)
-
 configs = {
     'provider': os.environ['PROVIDER'],
     'client_id': os.environ['CLIENT_ID'],
     'redirect_uri': os.environ['REDIRECT_URI'],
     'scope': os.environ['SCOPE'],
     'accept_users': os.environ['ACCEPT_USERS'].split(','),
-    'max_sessions': int(os.environ['MAX_SESSIONS'])
+    'max_sessions': int(os.environ['MAX_SESSIONS']),
+    'debug': bool(strtobool(os.environ.get('DEBUG', 'False')))
 }
+
+if configs['debug']:
+    logging.basicConfig(level=logging.INFO)
 
 app = Flask(__name__)
 provider = Providers[configs['provider']](configs)
@@ -110,4 +113,4 @@ def callback():
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', debug=False)
+    app.run(host='0.0.0.0', debug=configs['debug'])
