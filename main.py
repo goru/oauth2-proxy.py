@@ -79,9 +79,9 @@ def start():
         #expires=
         #path=
         #domain=
-        #secure=
-        httponly=True
-        #samesite=
+        secure=True,
+        httponly=True,
+        samesite='Lax'
     )
 
     return resp
