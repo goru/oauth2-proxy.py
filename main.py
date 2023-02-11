@@ -34,7 +34,7 @@ accepted_sessions = Oauth2Sessions(configs['max_sessions'])
 @app.route('/oauth2/auth')
 def auth():
     session = accepted_sessions.get(
-        request.cookies.get('session_id', '')
+        request.cookies.get('oauth2_proxy_py_session_id', '')
     )
 
     if session:
@@ -73,7 +73,7 @@ def start():
     # https://flask.palletsprojects.com/en/2.0.x/api/#flask.Response.set_cookie
     resp = redirect(uri)
     resp.set_cookie(
-        'session_id',
+        'oauth2_proxy_py_session_id',
         value=session.id,
         #max_age=
         #expires=
@@ -90,7 +90,7 @@ def start():
 @app.route('/oauth2/callback')
 def callback():
     session = sessions.get(
-        request.cookies.get('session_id', '')
+        request.cookies.get('oauth2_proxy_py_session_id', '')
     )
 
     if not session:
