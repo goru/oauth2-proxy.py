@@ -24,6 +24,7 @@ class TwitterProvider:
             + f'code_challenge={session.code_challenge}&'
             + f'code_challenge_method={session.code_challenge_method}')
         logger.info(uri)
+
         return uri
 
 
@@ -44,6 +45,9 @@ class TwitterProvider:
         )
         logger.info(resp.json())
 
+        if resp.status_code != requests.codes.ok:
+            return False
+
         session.set_expires_in(resp.json()['expires_in'])
         session.access_token = resp.json()['access_token']
         session.refresh_token = resp.json()['refresh_token']
@@ -52,12 +56,16 @@ class TwitterProvider:
 
 
     def check_user(self, session):
+        # https://developer.twitter.com/en/docs/twitter-api/users/lookup/api-reference/get-users-me
         resp = requests.get('https://api.twitter.com/2/users/me',
             headers={
                 'Authorization': f'Bearer {session.access_token}'
             }
         )
         logger.info(resp.json())
+
+        if resp.status_code != requests.codes.ok:
+            return False
 
         if resp.json()['data']['id'] not in self.accept_users:
             return False
@@ -74,6 +82,9 @@ class TwitterProvider:
             }
         )
         logger.info(resp.json())
+
+        if resp.status_code != requests.codes.ok:
+            return False
 
         session.set_expires_in(resp.json()['expires_in'])
         session.access_token = resp.json()['access_token']
