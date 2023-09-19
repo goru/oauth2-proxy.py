@@ -29,6 +29,7 @@ class Oauth2Sessions:
 
     def add(self, session):
         self.sessions[session.id] = session
+        self.sessions.move_to_end(session.id)
 
         # remove old session
         if len(self.sessions) > self.max_sessions:
